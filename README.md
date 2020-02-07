@@ -42,5 +42,5 @@ Apache License, Version 2.0
 WIP
 ```
 go get github.com/Songmu/ghch/cmd/ghch
-ghch --format=markdown --next-version=vX.Y.Z --all > CHANGELOG.md
+ghch --format=markdown -w --next-version=vX.Y.Z
 ```
