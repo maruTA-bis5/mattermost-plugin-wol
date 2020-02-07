@@ -1,10 +1,26 @@
+/*
+ * Mattermost Wake-on-LAN Plugin
+ * Copyright 2020 Takayuki Maruyama
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package main
 
 import (
-	"fmt"
-	"net/http"
 	"sync"
 
+	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/mattermost/mattermost-server/v5/plugin"
 )
 
@@ -18,11 +34,40 @@ type Plugin struct {
 	// configuration is the active plugin configuration. Consult getConfiguration and
 	// setConfiguration for usage.
 	configuration *configuration
+
+	activated bool
 }
 
-// ServeHTTP demonstrates a plugin that handles HTTP requests by greeting the world.
-func (p *Plugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, "Hello, world!")
+// OnActivate hook
+func (p *Plugin) OnActivate() error {
+	triggerWord := p.getConfiguration().TriggerWord
+	err := p.API.RegisterCommand(p.createCommand(triggerWord))
+	if err != nil {
+		return err
+	}
+	p.setActivated(true)
+	return nil
 }
 
-// See https://developers.mattermost.com/extend/plugins/server/reference/
+// OnDeactivate hook
+func (p *Plugin) OnDeactivate() error {
+	p.setActivated(false)
+	return nil
+}
+
+func (p *Plugin) createCommand(triggerWord string) *model.Command {
+	return &model.Command{
+		Trigger:          triggerWord,
+		AutoComplete:     true,
+		AutoCompleteDesc: "available commands: wake, help",
+		AutoCompleteHint: "[command]",
+	}
+}
+
+func (p *Plugin) isActivated() bool {
+	return p.activated
+}
+
+func (p *Plugin) setActivated(activated bool) {
+	p.activated = activated
+}
