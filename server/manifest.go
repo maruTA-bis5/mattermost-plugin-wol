@@ -12,11 +12,11 @@ var manifest *model.Manifest
 
 const manifestStr = `
 {
-  "id": "com.mattermost.plugin-starter-template",
-  "name": "Plugin Starter Template",
-  "description": "This plugin serves as a starting point for writing a Mattermost plugin.",
+  "id": "net.bis5.mattermost.plugins.wol",
+  "name": "Wake-on-LAN Plugin",
+  "description": "This plugin generates the Wake on LAN magic packet.",
   "version": "0.1.0",
-  "min_server_version": "5.12.0",
+  "min_server_version": "5.18.0",
   "server": {
     "executables": {
       "linux-amd64": "server/dist/plugin-linux-amd64",
@@ -25,13 +25,19 @@ const manifestStr = `
     },
     "executable": ""
   },
-  "webapp": {
-    "bundle_path": "webapp/dist/main.js"
-  },
   "settings_schema": {
     "header": "",
     "footer": "",
-    "settings": []
+    "settings": [
+      {
+        "key": "TriggerWord",
+        "display_name": "Trigger Word",
+        "type": "text",
+        "help_text": "",
+        "placeholder": "",
+        "default": "wol"
+      }
+    ]
   }
 }
 `
