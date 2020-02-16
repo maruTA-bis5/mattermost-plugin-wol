@@ -116,3 +116,7 @@ func (p *Plugin) OnConfigurationChange() error {
 
 	return nil
 }
+
+func (p *Plugin) getTriggerWord() string {
+	return p.getConfiguration().TriggerWord
+}
