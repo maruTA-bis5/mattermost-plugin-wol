@@ -20,7 +20,6 @@ package main
 import (
 	"sync"
 
-	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/mattermost/mattermost-server/v5/plugin"
 )
 
@@ -53,15 +52,6 @@ func (p *Plugin) OnActivate() error {
 func (p *Plugin) OnDeactivate() error {
 	p.setActivated(false)
 	return nil
-}
-
-func (p *Plugin) createCommand(triggerWord string) *model.Command {
-	return &model.Command{
-		Trigger:          triggerWord,
-		AutoComplete:     true,
-		AutoCompleteDesc: "available commands: wake, help",
-		AutoCompleteHint: "[command]",
-	}
 }
 
 func (p *Plugin) isActivated() bool {

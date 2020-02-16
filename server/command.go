@@ -18,13 +18,20 @@
 package main
 
 import (
-	"net"
 	"strings"
 
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/mattermost/mattermost-server/v5/plugin"
-	"github.com/mdlayher/wol"
 )
+
+func (p *Plugin) createCommand(triggerWord string) *model.Command {
+	return &model.Command{
+		Trigger:          triggerWord,
+		AutoComplete:     true,
+		AutoCompleteDesc: "available commands: wake, add, list, remove, help",
+		AutoCompleteHint: "[command]",
+	}
+}
 
 // ExecuteCommand hook
 func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*model.CommandResponse, *model.AppError) {
@@ -37,51 +44,20 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 	switch subCommand {
 	case "wake":
 		return p.executeWake(c, args, fields)
+	case "add":
+		return p.executeAdd(c, args, fields)
+	case "list":
+		return p.executeList(c, args, fields)
+	case "remove":
+		return p.executeRemove(c, args, fields)
 	default:
-		return p.executeHelp(c, args, fields)
+		return p.executeHelp(fields)
 	}
 }
 
-func (p *Plugin) executeWake(c *plugin.Context, args *model.CommandArgs, fields []string) (*model.CommandResponse, *model.AppError) {
-	if len(fields) <= 2 {
-		// TODO
-		return &model.CommandResponse{
-			ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
-			Text:         "MACアドレスを指定して下さい",
-		}, nil
-	}
-	target, err := net.ParseMAC(fields[2])
-	if err != nil {
-		// TODO
-		return &model.CommandResponse{
-			ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
-			Text:         "エラー: 不正なMACアドレスが指定されました",
-		}, nil
-	}
-	client, err := wol.NewClient()
-	if err != nil {
-		// TODO
-		return &model.CommandResponse{
-			ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
-			Text:         "エラー: wol.NewClient() failed",
-		}, nil
-	}
-	defer client.Close()
-	address := "255.255.255.255:7" // 仮
-	var password []byte
-	client.WakePassword(address, target, password)
+func (p *Plugin) newCommandResponse(text string) (*model.CommandResponse, *model.AppError) {
 	return &model.CommandResponse{
 		ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
-		Text:         "MACアドレス[" + target.String() + "]のPCを起動するためのマジックパケットを送出しました",
-	}, nil
-}
-
-func (p *Plugin) executeHelp(c *plugin.Context, args *model.CommandArgs, fields []string) (*model.CommandResponse, *model.AppError) {
-	// TODO
-	// wake 指定したアドレスに対してWake-on-LANのためのマジックパケットを送出します
-	// ※例: /wol wake ff:ff:ff:ff:ff:ff",
-	return &model.CommandResponse{
-		ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
-		Text:         "TODO help text. `/wol wake [MAC ADDRESS]`",
+		Text:         text,
 	}, nil
 }

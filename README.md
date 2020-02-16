@@ -1,6 +1,6 @@
 # Mattermost Wake-on-LAN Plugin [![CircleCI branch](https://img.shields.io/circleci/project/github/maruTA-bis5/mattermost-plugin-wol/master.svg)](https://circleci.com/gh/maruTA-bis5/mattermost-plugin-wol)
 
-This plugin generates the Wake on LAN magic packet via slash command.
+This plugin provides the slash command to send the Wake on LAN magic packet.
 
 ## Installation
 WIP
