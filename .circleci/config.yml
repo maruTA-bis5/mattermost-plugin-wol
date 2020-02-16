@@ -10,23 +10,23 @@ workflows:
       - plugin-ci/lint:
           filters:
             tags:
-              only: /^v.*/
+              only: /^\d+\.\d+\.\d+/
       - plugin-ci/build:
           filters:
             tags:
-              only: /^v.*/
+              only: /^\d+\.\d+\.\d+/
           requires:
             - plugin-ci/lint
       - plugin-ci/test:
           filters:
             tags:
-              only: /^v.*/
+              only: /^\d+\.\d+\.\d+/
           requires:
             - plugin-ci/lint
       - plugin-ci/deploy-release-github:
           filters:
             tags:
-              only: /^v.*/
+              only: /^\d+\.\d+\.\d+/
             branches:
               ignore: /.*/
           requires:
