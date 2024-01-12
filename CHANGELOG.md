@@ -1,5 +1,9 @@
 # Changelog
 
+## [v0.3.0](https://github.com/maruTA-bis5/mattermost-plugin-wol/compare/0.2.0...v0.3.0) (2024-01-13)
+
+* Bump dependency
+
 ## [0.2.0](https://github.com/maruTA-bis5/mattermost-plugin-wol/compare/v0.1.0...0.2.0) (2020-02-16)
 
 * New Feature: Register alias of MAC address [#3](https://github.com/maruTA-bis5/mattermost-plugin-wol/pull/3) ([maruTA-bis5](https://github.com/maruTA-bis5))
