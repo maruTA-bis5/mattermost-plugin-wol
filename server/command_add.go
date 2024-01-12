@@ -20,9 +20,8 @@ package main
 import (
 	"net"
 
-	"github.com/mattermost/mattermost-server/v5/mlog"
-	"github.com/mattermost/mattermost-server/v5/model"
-	"github.com/mattermost/mattermost-server/v5/plugin"
+	"github.com/mattermost/mattermost-server/v6/model"
+	"github.com/mattermost/mattermost-server/v6/plugin"
 )
 
 func (p *Plugin) executeAdd(c *plugin.Context, args *model.CommandArgs, fields []string) (*model.CommandResponse, *model.AppError) {
@@ -31,7 +30,7 @@ func (p *Plugin) executeAdd(c *plugin.Context, args *model.CommandArgs, fields [
 	}
 	macAddress, err := net.ParseMAC(fields[2])
 	if err != nil {
-		p.API.LogInfo("Could not parse mac address", mlog.String("address", fields[2]))
+		p.API.LogInfo("Could not parse mac address", "address", fields[2])
 		return p.newCommandResponse("エラー: 不正なMACアドレスが指定されました")
 	}
 	alias := fields[3]
@@ -40,16 +39,16 @@ func (p *Plugin) executeAdd(c *plugin.Context, args *model.CommandArgs, fields [
 		MacAddress: macAddress.String(),
 	}
 	// store
-	entries, err := p.loadEntries(args.UserId)
-	if err != nil {
-		p.API.LogError("Could not load entries for user", mlog.String("userID", args.UserId), mlog.Err(err))
+	entries, apperr := p.loadEntries(args.UserId)
+	if apperr != nil {
+		p.API.LogError("Could not load entries for user", "userID", args.UserId, "error", apperr.Unwrap().Error())
 		return p.newCommandResponse("Could not load alias entriee")
 	}
 	entries[alias] = entry
-	err = p.storeEntries(args.UserId, entries)
-	if err != nil {
-		p.API.LogError("Could not store entries", mlog.String("userID", args.UserId), mlog.Err(err))
-		return p.newCommandResponse("Could not store entries. err=" + err.Error())
+	apperr = p.storeEntries(args.UserId, entries)
+	if apperr != nil {
+		p.API.LogError("Could not store entries", "userID", args.UserId, "error", apperr.Unwrap().Error())
+		return p.newCommandResponse("Could not store entries. err=" + apperr.Unwrap().Error())
 	}
 
 	return p.newCommandResponse("[" + macAddress.String() + "]の別名として[" + alias + "]を登録しました")

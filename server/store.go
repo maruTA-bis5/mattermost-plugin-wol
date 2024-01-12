@@ -18,7 +18,10 @@
 package main
 
 import (
-	"github.com/mattermost/mattermost-server/v5/mlog"
+	"encoding/json"
+	"net/http"
+
+	"github.com/mattermost/mattermost-server/v6/model"
 )
 
 // Entry to send magic packet
@@ -35,21 +38,35 @@ func (p *Plugin) findEntry(entries map[string]Entry, alias string) (Entry, bool)
 func (p *Plugin) findEntryForUserForName(userID, alias string) (Entry, bool) {
 	entries, err := p.loadEntries(userID)
 	if err != nil {
-		p.API.LogError("Could not load entries for user", mlog.String("userID", userID), mlog.Err(err))
+		p.API.LogError("Could not load entries for user", "userID", userID, "error", err)
 		return Entry{}, false
 	}
 	return p.findEntry(entries, alias)
 }
 
-func (p *Plugin) loadEntries(userID string) (map[string]Entry, error) {
+func (p *Plugin) loadEntries(userID string) (map[string]Entry, *model.AppError) {
 	var entries map[string]Entry
-	exists, err := p.Helpers.KVGetJSON(userID, &entries)
-	if !exists {
+	bytes, err := p.API.KVGet(userID)
+	if err != nil {
+		p.API.LogWarn("loadEntries: error", "err", err)
 		entries = make(map[string]Entry)
+	}
+	if bytes == nil && err == nil { // not found
+		entries = make(map[string]Entry)
+	} else {
+		err := json.Unmarshal(bytes, &entries)
+		if err != nil {
+			return nil, model.NewAppError("loadEntries", "Could not unmarshal entries", nil, err.Error(), http.StatusInternalServerError).Wrap(err)
+		}
 	}
 	return entries, err
 }
 
-func (p *Plugin) storeEntries(userID string, entries map[string]Entry) error {
-	return p.Helpers.KVSetJSON(userID, entries)
+func (p *Plugin) storeEntries(userID string, entries map[string]Entry) *model.AppError {
+	json, err := json.Marshal(entries)
+	if err != nil {
+		return model.NewAppError("storeEntries", "Could not marshal entries", nil, err.Error(), http.StatusInternalServerError).Wrap(err)
+	}
+	setErr := p.API.KVSet(userID, json)
+	return setErr
 }

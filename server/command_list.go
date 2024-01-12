@@ -20,16 +20,15 @@ package main
 import (
 	"fmt"
 
-	"github.com/mattermost/mattermost-server/v5/mlog"
-	"github.com/mattermost/mattermost-server/v5/model"
-	"github.com/mattermost/mattermost-server/v5/plugin"
+	"github.com/mattermost/mattermost-server/v6/model"
+	"github.com/mattermost/mattermost-server/v6/plugin"
 )
 
 func (p *Plugin) executeList(c *plugin.Context, args *model.CommandArgs, fields []string) (*model.CommandResponse, *model.AppError) {
 	// fetch
 	entries, err := p.loadEntries(args.UserId)
 	if err != nil {
-		p.API.LogError("Could not load entries for user", mlog.String("userID", args.UserId), mlog.Err(err))
+		p.API.LogError("Could not load entries for user", "userID", args.UserId, "error", err)
 		return p.newCommandResponse("Could load alias entries.")
 	}
 	if len(entries) == 0 {

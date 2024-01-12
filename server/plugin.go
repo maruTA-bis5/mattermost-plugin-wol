@@ -20,7 +20,7 @@ package main
 import (
 	"sync"
 
-	"github.com/mattermost/mattermost-server/v5/plugin"
+	"github.com/mattermost/mattermost-server/v6/plugin"
 )
 
 // Plugin implements the interface expected by the Mattermost server to communicate between the server and plugin processes.
@@ -42,6 +42,7 @@ func (p *Plugin) OnActivate() error {
 	triggerWord := p.getConfiguration().TriggerWord
 	err := p.API.RegisterCommand(p.createCommand(triggerWord))
 	if err != nil {
+		p.API.LogError("Could not register command", "error", err)
 		return err
 	}
 	p.setActivated(true)

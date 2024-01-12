@@ -20,9 +20,8 @@ package main
 import (
 	"net"
 
-	"github.com/mattermost/mattermost-server/v5/mlog"
-	"github.com/mattermost/mattermost-server/v5/model"
-	"github.com/mattermost/mattermost-server/v5/plugin"
+	"github.com/mattermost/mattermost-server/v6/model"
+	"github.com/mattermost/mattermost-server/v6/plugin"
 	"github.com/mdlayher/wol"
 )
 
@@ -37,16 +36,16 @@ func (p *Plugin) executeWake(c *plugin.Context, args *model.CommandArgs, fields 
 		if !result {
 			return p.newCommandResponse("エラー: 不正なMACアドレスが指定されました") // XXX MACアドレスだけじゃないんだけど
 		}
-		target, err = net.ParseMAC(entry.MacAddress)
+		target, _ = net.ParseMAC(entry.MacAddress)
 	}
-	client, err := wol.NewClient()
+	wol, err := wol.NewClient()
 	if err != nil {
-		p.API.LogError("Could not initialize wol client", mlog.Err(err))
+		p.API.LogError("Could not initialize wol client", "error", err)
 		return p.newCommandResponse("エラー: wol.NewClient() failed")
 	}
-	defer client.Close()
+	defer wol.Close()
 	address := "255.255.255.255:7" // 仮
 	var password []byte
-	client.WakePassword(address, target, password)
+	wol.WakePassword(address, target, password)
 	return p.newCommandResponse("MACアドレス[" + target.String() + "]のPCを起動するためのマジックパケットを送出しました")
 }

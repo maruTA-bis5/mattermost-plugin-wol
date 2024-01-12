@@ -20,7 +20,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/mattermost/mattermost-server/v5/model"
+	"github.com/mattermost/mattermost-server/v6/model"
 )
 
 func (p *Plugin) executeHelp(fields []string) (*model.CommandResponse, *model.AppError) {
