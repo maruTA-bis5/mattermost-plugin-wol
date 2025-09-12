@@ -18,35 +18,10 @@
 package main
 
 import (
-	"net"
-
-	"github.com/mattermost/mattermost-server/v5/mlog"
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/mattermost/mattermost-server/v5/plugin"
-	"github.com/mdlayher/wol"
 )
 
 func (p *Plugin) executeWake(c *plugin.Context, args *model.CommandArgs, fields []string) (*model.CommandResponse, *model.AppError) {
-	if len(fields) <= 2 {
-		return p.newCommandResponse("MACアドレスまたは別名を指定してください")
-	}
-	aliasOrMacAddress := fields[2]
-	target, err := net.ParseMAC(fields[2])
-	if err != nil {
-		entry, result := p.findEntryForUserForName(args.UserId, aliasOrMacAddress)
-		if !result {
-			return p.newCommandResponse("エラー: 不正なMACアドレスが指定されました") // XXX MACアドレスだけじゃないんだけど
-		}
-		target, err = net.ParseMAC(entry.MacAddress)
-	}
-	client, err := wol.NewClient()
-	if err != nil {
-		p.API.LogError("Could not initialize wol client", mlog.Err(err))
-		return p.newCommandResponse("エラー: wol.NewClient() failed")
-	}
-	defer client.Close()
-	address := "255.255.255.255:7" // 仮
-	var password []byte
-	client.WakePassword(address, target, password)
-	return p.newCommandResponse("MACアドレス[" + target.String() + "]のPCを起動するためのマジックパケットを送出しました")
+	return p.newCommandResponse("このコマンドは廃止されました。別途案内があったWakeOnLanアプリをご利用ください。")
 }
